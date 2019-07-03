@@ -4,11 +4,11 @@ use strict;
 use POSIX qw(sysconf :unistd_h);
 use Exporter 5.57 'import';
 our @EXPORT_OK = qw(ioread readfile readXML);
-our $VERSION = 0.11;
+our $VERSION = 0.12;
 
 sub ioread{
   my %o = @_;
-  $o{fh} = *STDIN unless $o{fh} && ref $o{fh} eq 'GLOB';
+  $o{fh} = \*STDIN unless $o{fh} && ref $o{fh} eq 'GLOB';
   $o{nl} = defined $o{nl} && length $o{nl} ? $o{nl} : "\012";
   $o{rbytes} = 0 unless defined $o{rbytes};
   $o{rmax} = 0 unless defined $o{rmax} && $o{rmax} =~ /^\d+$/;
