@@ -1,10 +1,9 @@
 package IO::Read;
 use strict;
 
-use POSIX qw(sysconf :unistd_h);
 use Exporter 5.57 'import';
-our @EXPORT_OK = qw(ioread readfile readXML);
-our $VERSION = 0.12;
+our @EXPORT_OK = qw(ioread readfile readXML pagesize);
+our $VERSION = 0.13;
 
 sub ioread{
   my %o = @_;
@@ -20,10 +19,16 @@ sub ioread{
   die "$!$/" unless defined $bytes; $_
 }
 
+sub pagesize{
+  require POSIX;
+  POSIX::sysconf(&POSIX::_SC_PAGESIZE);
+}
+
 sub readfile{
   my $file = shift;
   die "file $file does not exist or cannot open or is empty" unless -e $file && -r _ && -s _;
-  my $pagesize = sysconf _SC_PAGESIZE;
+  my $pagesize = pagesize;
+  die "pagesize error$/" unless $pagesize && $pagesize =~ /^\d+$/;
   open my $fh,'<',$file or die "cannot open file $file: $!$/";
   local $_ = ioread(fh=>$fh, rmax=>$pagesize*4, rbuf=>$pagesize);
   close $fh or die "cannot close file $file: $!$/";
@@ -33,7 +38,8 @@ sub readfile{
 sub readXML{
   my $file = shift;
   die "file $file does not exist or cannot open or is empty" unless -e $file && -r _ && -s _;
-  my $pagesize = sysconf _SC_PAGESIZE;
+  my $pagesize = pagesize;
+  die "pagesize error$/" unless $pagesize && $pagesize =~ /^\d+$/;
   open my $fh,'<:encoding(UTF-8)',$file or die "cannot open file $file as UTF-8: $!$/";
   local $_ = ioread(fh=>$fh, rmax=>$pagesize*4, rbuf=>$pagesize);
   close $fh or die "cannot close file $file: $!$/";
