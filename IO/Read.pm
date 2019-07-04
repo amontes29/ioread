@@ -3,7 +3,7 @@ use strict;
 
 use Exporter 5.57 'import';
 our @EXPORT_OK = qw(ioread readfile readXML pagesize);
-our $VERSION = 0.13;
+our $VERSION = 0.14;
 
 sub ioread{
   my %o = @_;
@@ -14,7 +14,7 @@ sub ioread{
   $o{rbuf} = 1 unless $o{rbuf} && $o{rbuf} =~ /^\d+$/;
   local($/,$_) = ($o{nl},'');
   my $bytes = 1; #ToDo: timeout alarm to safely read STDIN
-  while( (!$o{rmax} || $o{rmax} >= length) && $bytes && ($o{rbytes} || -1 == index $_,$/) ){
+  while( (!$o{rmax} || $o{rmax} > length) && $bytes && ($o{rbytes} || -1 == index $_,$/) ){
     $bytes = read $o{fh},$_,$o{rbuf},length}
   die "$!$/" unless defined $bytes; $_
 }
