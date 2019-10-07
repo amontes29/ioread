@@ -3,7 +3,7 @@ use strict;
 
 use Exporter 5.57 'import';
 our @EXPORT_OK = qw(ioread readfile readXML pagesize);
-our $VERSION = 0.14;
+our $VERSION = 0.15;
 
 sub ioread{
   my %o = @_;
@@ -29,8 +29,9 @@ sub readfile{
   die "file $file does not exist or cannot open or is empty" unless -e $file && -r _ && -s _;
   my $pagesize = pagesize;
   die "pagesize error$/" unless $pagesize && $pagesize =~ /^\d+$/;
+  my $rmax = $#_ > -1 ? shift : $pagesize*4;
   open my $fh,'<',$file or die "cannot open file $file: $!$/";
-  local $_ = ioread(fh=>$fh, rmax=>$pagesize*4, rbuf=>$pagesize);
+  local $_ = ioread(fh=>$fh, rmax=>$rmax, rbuf=>$pagesize);
   close $fh or die "cannot close file $file: $!$/";
   die $$_.$/ if defined && ref eq 'SCALAR'; $_
 }
@@ -40,8 +41,9 @@ sub readXML{
   die "file $file does not exist or cannot open or is empty" unless -e $file && -r _ && -s _;
   my $pagesize = pagesize;
   die "pagesize error$/" unless $pagesize && $pagesize =~ /^\d+$/;
+  my $rmax = $#_ > -1 ? shift : $pagesize*4;
   open my $fh,'<:encoding(UTF-8)',$file or die "cannot open file $file as UTF-8: $!$/";
-  local $_ = ioread(fh=>$fh, rmax=>$pagesize*4, rbuf=>$pagesize);
+  local $_ = ioread(fh=>$fh, rmax=>$rmax, rbuf=>$pagesize, rbytes=>1);
   close $fh or die "cannot close file $file: $!$/";
   die $$_.$/ if defined && ref eq 'SCALAR';
   die "no data$/" unless defined && length;
